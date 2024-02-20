@@ -7,8 +7,9 @@
 use std::{borrow::Cow, io, path::PathBuf};
 
 use thiserror::Error;
+use file_mode::ModeParseError;
 
-pub use crate::ops::{copy_file, remove_file, remove_file as remove_dir_all, CopyOp, RemoveOp};
+pub use crate::ops::{copy_file, remove_file, remove_file as remove_dir_all, CopyOp, RemoveOp, ChmodOp, ChmodMode};
 
 mod ops;
 
@@ -19,6 +20,8 @@ pub enum Error {
         error: io::Error,
         context: Cow<'static, str>,
     },
+    #[error("Invalid file mode")]
+    FileMode(#[from] ModeParseError),
     #[error("An attempt was made to delete `/`")]
     PreserveRoot,
     #[error("Failed to join thread")]

@@ -223,6 +223,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chmodz"
+version = "1.1.6"
+dependencies = [
+ "clap",
+ "criterion",
+ "error-stack",
+ "ftzz",
+ "fuc_engine",
+ "io-adapters",
+ "remove_dir_all",
+ "rm_og_crappy",
+ "rm_rayon",
+ "supercilex-tests",
+ "tempfile",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "tracing-tracy",
+ "tracy-client",
+ "trycmd",
+]
+
+[[package]]
 name = "ciborium"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -513,6 +536,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25cbce373ec4653f1a01a31e8a5e5ec0c622dc27ff9c4e6606eefef5cbbed4a5"
 
 [[package]]
+name = "file-mode"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "773ea145485772b8d354624b32adbe20e776353d3e48c7b03ef44e3455e9815c"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "filetime"
 version = "0.2.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -570,6 +602,7 @@ name = "fuc_engine"
 version = "1.1.6"
 dependencies = [
  "crossbeam-channel",
+ "file-mode",
  "ftzz",
  "io-adapters",
  "rayon",

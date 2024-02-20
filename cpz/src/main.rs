@@ -117,7 +117,7 @@ fn main() -> error_stack::Result<(), CliError> {
                 }
             }
             Error::Join | Error::BadPath | Error::Internal => Report::from(wrapper),
-            Error::PreserveRoot | Error::NotFound { file: _ } => unreachable!(),
+            Error::PreserveRoot | Error::NotFound { file: _ } | Error::FileMode(_) => unreachable!(),
         }
     })
 }

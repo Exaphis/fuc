@@ -2,30 +2,25 @@ use std::path::PathBuf;
 
 use clap::{ArgAction, Parser, ValueHint};
 use error_stack::Report;
-use fuc_engine::{Error, RemoveOp};
+use fuc_engine::{ChmodMode, ChmodOp, Error};
 
-/// A zippy alternative to `rm`, a tool to remove files and directories
+/// A zippy alternative to `chmod`, a tool to change file mode bits of files and directories
 #[derive(Parser, Debug)]
-#[command(version, author = "Alex Saveau (@SUPERCILEX)")]
+#[command(version, author = "Alex Saveau (@SUPERCILEX), Kevin Wu (@Exaphis")]
 #[command(infer_subcommands = true, infer_long_args = true)]
 #[command(disable_help_flag = true)]
 #[command(arg_required_else_help = true)]
 #[command(max_term_width = 100)]
 #[cfg_attr(test, command(help_expected = true))]
-struct Rmz {
-    /// The files and/or directories to be removed
+struct Chmodz {
+    /// The desired mode (octal or symbolic)
+    #[arg(required = true)]
+    mode: String,
+
+    /// The files and/or directories to have their mode changed
     #[arg(required = true)]
     #[arg(value_hint = ValueHint::AnyPath)]
     files: Vec<PathBuf>,
-
-    /// Ignore non-existent arguments
-    #[arg(short, long, default_value_t = false)]
-    force: bool,
-
-    /// Allow deletion of `/`
-    #[arg(long = "no-preserve-root", default_value_t = true)]
-    #[arg(action = ArgAction::SetFalse)]
-    preserve_root: bool,
 
     #[arg(short, long, short_alias = '?', global = true)]
     #[arg(action = ArgAction::Help, help = "Print help (use `--help` for more detail)")]
@@ -78,9 +73,10 @@ fn main() -> error_stack::Result<(), CliError> {
             .init();
     };
 
-    let args = Rmz::parse();
+    let args = Chmodz::parse();
+    let mode = args.mode.clone();
 
-    remove(args).map_err(|e| {
+    chmod(args).map_err(|e| {
         let wrapper = CliError::Wrapper(format!("{e}"));
         match e {
             Error::Io { error, context } => Report::from(error)
@@ -89,26 +85,25 @@ fn main() -> error_stack::Result<(), CliError> {
             Error::NotFound { file: _ } => {
                 Report::from(wrapper).attach_printable("Use --force to ignore.")
             }
+            Error::FileMode(error) => Report::from(CliError::Wrapper(format!("Invalid file mode '{mode}': {error}"))),
             Error::PreserveRoot | Error::Join | Error::BadPath | Error::Internal => {
                 Report::from(wrapper)
             }
-            Error::AlreadyExists { file: _ } | Error::FileMode(_) => unreachable!(),
+            Error::AlreadyExists { file: _ } => unreachable!(),
         }
     })
 }
 
-fn remove(
-    Rmz {
+fn chmod(
+    Chmodz {
         files,
-        force,
-        preserve_root,
+        mode,
         help: _,
-    }: Rmz,
+    }: Chmodz,
 ) -> Result<(), Error> {
-    RemoveOp::builder()
+    ChmodOp::builder()
         .files(files.into_iter())
-        .force(force)
-        .preserve_root(preserve_root)
+        .mode(ChmodMode::new(mode.as_str()))
         .build()
         .run()
 }
@@ -121,11 +116,11 @@ mod cli_tests {
 
     #[test]
     fn verify_app() {
-        Rmz::command().debug_assert();
+        Chmodz::command().debug_assert();
     }
 
     #[test]
     fn help_for_review() {
-        supercilex_tests::help_for_review(Rmz::command());
+        supercilex_tests::help_for_review(Chmodz::command());
     }
 }

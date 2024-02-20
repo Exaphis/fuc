@@ -4,9 +4,11 @@ pub use copy::{copy_file, CopyOp};
 #[cfg(target_os = "linux")]
 use linux::{concat_cstrs, get_file_type, join_cstr_paths, path_buf_to_cstring};
 pub use remove::{remove_file, RemoveOp};
+pub use chmod::{chmod_file, ChmodOp, ChmodMode};
 
 use crate::Error;
 
+mod chmod;
 mod copy;
 mod remove;
 
